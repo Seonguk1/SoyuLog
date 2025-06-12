@@ -1,3 +1,4 @@
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { getCategoryById } from '../../src/constants/categories';
@@ -13,7 +14,7 @@ export default function CategoryLayout() {
                         router.back();
                     }}
                 >
-                    <Text style={{ fontSize: 50, fontWeight: "bold" }}> {"<"} </Text>
+                    <MaterialIcons name="arrow-back" size={40} color="black" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>
                     {category ? category.name : "추가"}

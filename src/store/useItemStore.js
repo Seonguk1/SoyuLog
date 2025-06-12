@@ -11,6 +11,11 @@ export const useItemStore = create(
       addItem: (item) => {
         set({ items: [...get().items, item] });
       },
+      removeItem: (itemId) => {
+        set({
+          items: get().items.filter((item) => item.id !== itemId),
+        });
+      },
     }),
     {
       name: 'item-storage',

@@ -1,12 +1,12 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from "expo-router";
 import { useMemo } from "react";
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { PieChart } from 'react-native-chart-kit';
 import { categories } from "../src/constants/categories";
 import { palette } from "../src/constants/palette";
 import { useItemStore } from "../src/store/useItemStore";
 import { heightPercent, scaleFont, widthPercent } from '../src/utils/responsive';
-const WIDTH = 500;
-const HEIGHT = 1000;
 const BOX_COLOR = palette[3];
 
 export default function Index() {
@@ -16,6 +16,29 @@ export default function Index() {
     return allItems
       .reduce((sum, item) => sum + item.price, 0);
   }, [allItems]);
+
+  const chartData = useMemo(() => {
+    const result = [];
+
+    categories.forEach((cat) => {
+      const total = allItems
+        .filter((item) => item.categoryId === cat.name) 
+        .reduce((sum, item) => sum + item.price, 0);
+
+      if (total > 0) {
+        result.push({
+          name: cat.name,
+          population: total,   
+          color: cat.color,    
+          legendFontColor: "#333",
+          legendFontSize: 14,
+        });
+      }
+    });
+
+    return result;
+  }, [allItems]);
+
   return (
     <SafeAreaView style={styles.background}>
       <View style={styles.container}>
@@ -24,14 +47,11 @@ export default function Index() {
             내 기록
           </Text>
           <TouchableOpacity
-            style={styles.headerAddButton}
             onPress={() => {
               router.push(`/category/add`);
             }}
           >
-            <Text style={{ fontSize: 40, fontWeight: "bold" }}>
-              +
-            </Text>
+            <Ionicons name="add-circle-outline" size={40} color="black" />
           </TouchableOpacity>
         </View>
         <View style={styles.main}>
@@ -42,20 +62,33 @@ export default function Index() {
           </View>
           <View style={styles.categoryListContainer}>
             {categories.map((cat) => (
-              <TouchableOpacity
-                key={cat.id}
-                style={styles.categoryButton}
-                onPress={() => {
-                  router.push(`/category/${cat.id}`);
-                }}
+              <View style={{flexDirection:"column", alignItems:"center", justifyContent:"center"}}>
+                <TouchableOpacity
+                  key={cat.id}
+                  style={styles.categoryButton}
+                  onPress={() => {
+                    router.push(`/category/${cat.id}`);
+                  }}
 
-              >
+                >
+                  <Text>{cat.icon}</Text>
+                </TouchableOpacity>
                 <Text>{cat.name}</Text>
-              </TouchableOpacity>
+              </View>
             ))}
           </View>
           <View style={styles.statisticsContainer}>
-
+            <PieChart
+              data={chartData}
+              width={widthPercent(100)}
+              height={widthPercent(70)}
+              chartConfig={{
+                color: () => `rgba(0, 0, 0, 0.5)`,
+              }}
+              accessor="population"
+              backgroundColor="transparent"
+              paddingLeft="30"
+            />
           </View>
         </View>
       </View>
@@ -64,9 +97,9 @@ export default function Index() {
 }
 
 const styles = StyleSheet.create({
-  background:{
-    flex:1, 
-    backgroundColor:"white",
+  background: {
+    flex: 1,
+    backgroundColor: "white",
   },
   container: {
     flex: 1,
@@ -87,7 +120,7 @@ const styles = StyleSheet.create({
     width: widthPercent(10),
     height: widthPercent(10),
     borderColor: "black",
-    borderWidth: 1,
+    borderWidth: 0,
     borderRadius: 50,
     alignItems: "center",
     justifyContent: "center"
@@ -101,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: BOX_COLOR,
     borderRadius: 20,
     borderColor: "black",
-    borderWidth: 1,
+    borderWidth: 0,
     justifyContent: "center",
     paddingLeft: 20,
     marginBottom: 20
@@ -120,11 +153,13 @@ const styles = StyleSheet.create({
     backgroundColor: BOX_COLOR,
     borderRadius: 20,
     borderColor: "black",
-    borderWidth: 1,
+    borderWidth: 0,
     alignItems: "center",
     justifyContent: "center",
+    marginBottom:10,
   },
   statisticsContainer: {
-
+    alignItems: "center",
+    justifyContent: "center"
   },
 })
